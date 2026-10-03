@@ -11,8 +11,16 @@
 )
 
 /// Builds a tree node. `content` is the label and the remaining positional
-/// arguments are its children. `branch` (1..n) overrides the palette color;
-/// `emphasis` is the node's role. Both are given by NAME.
+/// arguments are its children.
+///
+/// - `branch`: index (1..n) into the palette, overriding the color the node
+///   would inherit from its position.
+/// - `emphasis`: the role of the node, a key of `emphasis-colors` (and of
+///   `emphasis-labels`), by default `highlight`, `warning`, `definition` or
+///   `example`.
+///
+/// Both are given by NAME: the map resolves the color, so a document never has
+/// to carry a hex value to say what a node means.
 #let node(content, ..children, branch: none, emphasis: none) = normalize((
   content: content,
   children: children.pos(),
@@ -28,6 +36,10 @@
 /// Draws a complete mind map: measure, tidy layout, then CeTZ drawing.
 ///
 /// - `style`: `"boxed"` (default), `"outline"`, `"technical"`, `"bar"`, `"block"`.
+/// - `palette`: one color per first-level branch, cycled.
+/// - `ink` / `emphasis-colors` / `emphasis-labels`: overridable label colors,
+///   role colors and role tags; partial dictionaries are merged over the
+///   defaults.
 /// - `surface`: `"none"`, `"branches"` or `"all"` turn nodes into tinted cards.
 /// - `markers`: `"none"` (a role recolors the label) or `"role"` (a short tag
 ///   from `emphasis-labels` in front of the label, in `mono-font`).
