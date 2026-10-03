@@ -192,7 +192,7 @@ map at the top of the page:
     node([💸 Idle time wastes reserved bandwidth], emphasis: "warning"),
   ),
   node([📦 Message switching],
-    node([💾 Whole-message *store-and-forward*], emphasis: "definition"),
+    node([💾 *Whole-message* store-and-forward], emphasis: "definition"),
     node([🚫 No fragmentation]),
   ),
   node([⚡ Packet switching],
@@ -233,7 +233,8 @@ spacing.
 A node can carry an `emphasis` (its role) and a `branch` index that overrides
 the color it would inherit from its position. The override covers the node's
 whole subtree (edges, rules, numbers, markers, cards), unless a descendant sets
-its own `branch`. Both are given by **name**: the document says what a node
+its own `branch`. The root belongs to no branch, so a `branch` on the root changes
+nothing. Both are given by **name**: the document says what a node
 *means*, and the package resolves the color.
 
 ````typ
@@ -318,25 +319,25 @@ missing font makes Typst warn, and any warning fails the run.
 
 | Example | What it covers |
 |---------|----------------|
-| [`visual_shallow`](examples/visual_shallow.typ) | a root with three leaves |
-| [`visual_deep`](examples/visual_deep.typ) | several levels of nesting |
-| [`visual_many_siblings`](examples/visual_many_siblings.typ) | vertical spacing under pressure |
-| [`visual_long_labels`](examples/visual_long_labels.typ) | labels wrapping at `node-max-width` |
-| [`visual_outline`](examples/visual_outline.typ) | the `"outline"` style |
-| [`visual_emphasis`](examples/visual_emphasis.typ) | roles and branch overrides |
-| [`visual_markdown_emoji`](examples/visual_markdown_emoji.typ) | markup and emoji in labels, with the font fallback list |
-| [`visual_single`](examples/visual_single.typ) | a lone root |
-| [`visual_empty`](examples/visual_empty.typ) | empty labels |
-| [`visual_hero`](examples/visual_hero.typ) | the map at the top of this page |
-| [`visual_gallery`](examples/visual_gallery.typ) | the five styles on one map |
-| [`visual_edges`](examples/visual_edges.typ) | the three edges on one map |
-| [`visual_technical`](examples/visual_technical.typ) | the `"technical"` style, role tags, `align-levels` |
-| [`visual_bar`](examples/visual_bar.typ) | the `"bar"` style with the tapered edge |
-| [`visual_block`](examples/visual_block.typ) | the `"block"` style with straight edges |
-| [`visual_both`](examples/visual_both.typ) | `direction: "both"` |
-| [`visual_surface`](examples/visual_surface.typ) | `surface: "branches"` and `surface: "all"` |
-| [`visual_markers`](examples/visual_markers.typ) | `markers: "none"` against `markers: "role"` |
-| [`visual_justified`](examples/visual_justified.typ) | labels inside a justified, hyphenated document |
+| [`visual_shallow`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_shallow.typ) | a root with three leaves |
+| [`visual_deep`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_deep.typ) | several levels of nesting |
+| [`visual_many_siblings`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_many_siblings.typ) | vertical spacing under pressure |
+| [`visual_long_labels`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_long_labels.typ) | labels wrapping at `node-max-width` |
+| [`visual_outline`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_outline.typ) | the `"outline"` style |
+| [`visual_emphasis`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_emphasis.typ) | roles and branch overrides |
+| [`visual_markdown_emoji`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_markdown_emoji.typ) | markup and emoji in labels, with the font fallback list |
+| [`visual_single`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_single.typ) | a lone root |
+| [`visual_empty`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_empty.typ) | empty labels |
+| [`visual_hero`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_hero.typ) | the map at the top of this page |
+| [`visual_gallery`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_gallery.typ) | the five styles on one map |
+| [`visual_edges`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_edges.typ) | the three edges on one map |
+| [`visual_technical`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_technical.typ) | the `"technical"` style, role tags, `align-levels` |
+| [`visual_bar`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_bar.typ) | the `"bar"` style with the tapered edge |
+| [`visual_block`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_block.typ) | the `"block"` style with straight edges |
+| [`visual_both`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_both.typ) | `direction: "both"` |
+| [`visual_surface`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_surface.typ) | `surface: "branches"` and `surface: "all"` |
+| [`visual_markers`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_markers.typ) | `markers: "none"` against `markers: "role"` |
+| [`visual_justified`](https://github.com/pierryangelo/tidymind/blob/v0.3.0/examples/visual_justified.typ) | labels inside a justified, hyphenated document |
 
 ## Changelog
 
