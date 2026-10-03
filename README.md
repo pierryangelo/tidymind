@@ -14,7 +14,7 @@ fixed-spacing tree drawers.
 - `direction: "left"` and `direction: "both"`; `align-levels` lines up each depth in one column.
 - `surface` turns nodes into tinted cards; `markers: "role"` tags a node's role instead of recoloring it.
 - Four levels with their own look (root, branch, point, detail).
-- A label is no longer a paragraph: inside a justified, hyphenated document it used to split words and open gaps.
+- A label ignores the document's justification and hyphenation: inside a justified, hyphenated document it used to split words and open gaps.
 
 ![The same map in every style and edge](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/gallery.png)
 
@@ -160,8 +160,8 @@ tag text; a partial dictionary merges over the defaults (`key`, `warn`, `def.`,
 
 ## Labels inside justified text
 
-A label is not a paragraph, so it ignores the document's `par(justify: true)`
-and hyphenation: a wrapped label breaks between words and keeps its normal
+A label ignores the document's justification (`par(justify: true)`) and
+hyphenation: a wrapped label breaks between words and keeps its normal
 spacing.
 
 ````typ

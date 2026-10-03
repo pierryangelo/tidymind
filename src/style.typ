@@ -149,14 +149,19 @@
     marks.push(box(fill: paint.tag-fill, radius: 2pt, inset: (x: 2.2pt), outset: (y: 1.2pt),
       text(font: mono-font, size: size * 0.72, weight: "bold", fill: paint.tag, tag)))
   }
-  // Marks go inline at the start of the label's own paragraph, so a mark and
-  // the first line share one baseline whatever the label's font or size. A
-  // hanging indent as wide as the marks keeps a wrapped label aligned after
-  // them; it only applies to a real paragraph, hence the explicit `par`.
-  // (`measure` needs context: both passes call this inside one.)
+  // Marks go inline at the start of the label's first paragraph, so a mark
+  // and the first line share one baseline whatever the label's font or size.
+  // A hanging indent as wide as the marks keeps a wrapped label aligned after
+  // them. It only applies to a real paragraph, which the closing `parbreak`
+  // makes; an explicit `par(..)` would drop block content (lists, display
+  // math, paragraph breaks). (`measure` needs context: both passes have one.)
   let label = if marks.len() == 0 { content } else {
     let lead = marks.join(h(size * 0.35)) + h(size * 0.45)
-    par(hanging-indent: measure(lead).width, lead + content)
+    {
+      set par(hanging-indent: measure(lead).width)
+      lead + content
+      parbreak()
+    }
   }
   box(
     width: width,
@@ -167,7 +172,7 @@
     {
       // A node label is a label, not a document paragraph: the document's
       // justification, first-line indent and hyphenation must not leak into
-      // it, including the explicit `par` that carries marks.
+      // it, including the paragraph that carries marks.
       set par(justify: false, first-line-indent: 0pt)
       set text(hyphenate: false)
       text(font: font, size: size, weight: spec.weight, fill: paint.text, label)

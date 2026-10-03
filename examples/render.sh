@@ -29,20 +29,26 @@ fonts=""
 
 mkdir -p "$root/img"
 
+# A warning fails the run too: Typst warns, and still compiles, when it drops
+# content (e.g. a block inside a paragraph), which no #assert would notice.
+clean() {
+  if grep -q "warning" "$work/err"; then echo "WARNING in $1"; return 1; fi
+}
+
 for f in "$root"/examples/_assert_*.typ; do
   name=$(basename "$f" .typ)
   # A file that compiles is a file whose #assert calls all held.
   # shellcheck disable=SC2086
-  typst compile --package-path "$work" --root "$root" $fonts "$f" "$work/out.pdf" \
-    && echo "assert  $name" \
-    || { echo "FAILED  $name"; exit 1; }
+  typst compile --package-path "$work" --root "$root" $fonts "$f" "$work/out.pdf" 2>"$work/err" \
+    && clean "$name" && echo "assert  $name" \
+    || { cat "$work/err"; echo "FAILED  $name"; exit 1; }
 done
 
 for f in "$root"/examples/visual_*.typ; do
   name=$(basename "$f" .typ | sed 's/^visual_//')
   # shellcheck disable=SC2086
   typst compile --package-path "$work" --root "$root" $fonts \
-    --format png --ppi 192 "$f" "$root/img/$name.png" \
-    && echo "render  img/$name.png" \
-    || { echo "FAILED  $name"; exit 1; }
+    --format png --ppi 192 "$f" "$root/img/$name.png" 2>"$work/err" \
+    && clean "$name" && echo "render  img/$name.png" \
+    || { cat "$work/err"; echo "FAILED  $name"; exit 1; }
 done

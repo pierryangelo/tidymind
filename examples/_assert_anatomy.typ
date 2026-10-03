@@ -94,8 +94,18 @@
   assert(calc.abs(wr.w - wdrawn.width.pt()) < 0.001 and calc.abs(wr.h - wdrawn.height.pt()) < 0.001,
     message: "a wrapped tagged label: reserved box differs from drawn box")
 
+  // A marked label keeps block-level content: a list or a second paragraph
+  // makes the node taller than a one-line label, it is not dropped.
+  let marked = make-opts(style: "technical", markers: "role")
+  let mh(c) = measure-node(c, 2, marked, dressing(normalize((content: c, emphasis: "warning")), 2, 0, marked)).h
+  let one-line = mh([a])
+  assert(mh(list[a][b]) > 1.5 * one-line, message: "a marked label drops a list")
+  assert(mh(enum[a][b]) > 1.5 * one-line, message: "a marked label drops an enum")
+  assert(mh([a #parbreak() b]) > 1.5 * one-line, message: "a marked label drops a paragraph break")
+  assert(mh([a $ x = y $ b]) > 1.5 * one-line, message: "a marked label drops display math")
+
   // The measured tree carries the dressing to the drawing pass.
-  let t = measure-tree(normalize((content: [R], children: ((content: [A],), (content: [B],)))), opts)
+  let t =measure-tree(normalize((content: [R], children: ((content: [A],), (content: [B],)))), opts)
   assert(t.children.at(1).number == "02")
 }
 #[OK]

@@ -1,5 +1,6 @@
-// Long labels inside a justified, hyphenated document: a label is not a
-// paragraph, so it neither splits words nor stretches its spaces.
+// Long labels inside a justified, hyphenated document: a label ignores the
+// document's justification and hyphenation, so it neither splits words nor
+// stretches its spaces.
 #import "@preview/tidymind:0.3.0": mindmap, node
 #set page(width: auto, height: auto, margin: 10pt)
 #set text(lang: "en", hyphenate: true)
