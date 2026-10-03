@@ -15,7 +15,7 @@
     node([Statistical multiplexing]),
     node([Modes],
       node([Datagram (connectionless)]),
-      node([Virtual circuit], node([e.g. `MPLS`], emphasis: "example")),
+      node([Virtual circuit], node([`MPLS`], emphasis: "example")),
     ),
   ),
 )

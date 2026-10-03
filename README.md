@@ -73,7 +73,7 @@ Three more styles build on the same tree. The examples below all draw this one:
     node([Statistical multiplexing]),
     node([Modes],
       node([Datagram (connectionless)]),
-      node([Virtual circuit], node([e.g. `MPLS`], emphasis: "example")),
+      node([Virtual circuit], node([`MPLS`], emphasis: "example")),
     ),
   ),
 )

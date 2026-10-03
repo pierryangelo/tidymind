@@ -1,7 +1,7 @@
 // Every style against every edge, on one small tree.
 #import "@preview/tidymind:0.3.0": mindmap, node
 #set page(width: auto, height: auto, margin: 10pt)
-#set text(size: 8pt)
+#set text(font: "Inter", size: 8pt)
 #let small = node([Topic], node([Branch A], node([Point]), node([Point])), node([Branch B], node([Point])))
 #grid(
   columns: 4, gutter: 14pt, align: center + horizon,
