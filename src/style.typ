@@ -144,15 +144,19 @@
       stroke: if spec.prefix == "square" { none } else { 0.7pt + paint.prefix }))
   }
   if tag != none {
-    marks.push(box(fill: paint.tag-fill, radius: 2pt, inset: (x: 2.2pt, y: 1.2pt), baseline: 1.2pt,
+    // The vertical padding is an outset: the tag text sits on the line's
+    // baseline and the tint does not make the line taller.
+    marks.push(box(fill: paint.tag-fill, radius: 2pt, inset: (x: 2.2pt), outset: (y: 1.2pt),
       text(font: mono-font, size: size * 0.72, weight: "bold", fill: paint.tag, tag)))
   }
-  // Marks sit in a column of their own, so a wrapped label hangs aligned
-  // after them. The zero-width strut gives the mark column the label's line
-  // height, which keeps both first lines on the same baseline.
+  // Marks go inline at the start of the label's own paragraph, so a mark and
+  // the first line share one baseline whatever the label's font or size. A
+  // hanging indent as wide as the marks keeps a wrapped label aligned after
+  // them; it only applies to a real paragraph, hence the explicit `par`.
+  // (`measure` needs context: both passes call this inside one.)
   let label = if marks.len() == 0 { content } else {
-    let lead = box(width: 0pt, height: size * 0.73) + marks.join(h(size * 0.35))
-    grid(columns: (auto, if width == auto { auto } else { 1fr }), column-gutter: size * 0.45, lead, content)
+    let lead = marks.join(h(size * 0.35)) + h(size * 0.45)
+    par(hanging-indent: measure(lead).width, lead + content)
   }
   box(
     width: width,
@@ -161,9 +165,10 @@
     radius: spec.radius,
     inset: spec.inset,
     {
-      // A node label is a label, not a paragraph: the document's justification
-      // and hyphenation must not leak into it.
-      set par(justify: false)
+      // A node label is a label, not a document paragraph: the document's
+      // justification, first-line indent and hyphenation must not leak into
+      // it, including the explicit `par` that carries marks.
+      set par(justify: false, first-line-indent: 0pt)
       set text(hyphenate: false)
       text(font: font, size: size, weight: spec.weight, fill: paint.text, label)
     },

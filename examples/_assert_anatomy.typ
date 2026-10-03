@@ -77,6 +77,23 @@
   assert(cap.h > 1.8 * one.h, message: "the capsule test label should wrap")
   assert(calc.abs(cap.a - cap.h / 2) < 0.001, message: "a capsule node anchors at its middle")
 
+  // A wrapped label behind a role tag: what the layout reserves is what the
+  // drawing emits at the reserved width (the drawing pass passes `width`).
+  let tagged = make-opts(style: "technical", markers: "role", node-max-width: 2.5cm)
+  let wl = [Idle time wastes fixed bandwidth]
+  let wn = normalize((content: wl, emphasis: "warning"))
+  let wd = dressing(wn, 2, 0, tagged)
+  let wr = measure-node(wl, 2, tagged, wd)
+  let wspec = node-spec("technical", 2, emphasized: wd.emphasized, surfaced: wd.surfaced)
+  let wpaint = node-paint(wspec, 2, red, tagged.ink, none, role: blue)
+  let wdrawn = measure(node-body(wl, wspec, wpaint, tagged.font, tagged.text-size, width: wr.w * 1pt,
+    number: wd.number, tag: wd.tag, mono-font: tagged.mono-font))
+  assert(wd.tag != none, message: "the wrapped test leaf should carry a tag")
+  assert(wr.h > 1.8 * measure-node([X], 2, tagged, dressing(normalize((content: [X],)), 2, 0, tagged)).h,
+    message: "the tagged test label should wrap")
+  assert(calc.abs(wr.w - wdrawn.width.pt()) < 0.001 and calc.abs(wr.h - wdrawn.height.pt()) < 0.001,
+    message: "a wrapped tagged label: reserved box differs from drawn box")
+
   // The measured tree carries the dressing to the drawing pass.
   let t = measure-tree(normalize((content: [R], children: ((content: [A],), (content: [B],)))), opts)
   assert(t.children.at(1).number == "02")
