@@ -1,68 +1,57 @@
-#import "style.typ": node-body, node-paint, node-spec
+#import "style.typ": inset-top, node-body, node-paint, node-spec
 
-// Cores neutras para a passada de medição: a geometria é a mesma do desenho,
-// e é só ela que interessa aqui.
-#let _neutral-ink = (strong: black, soft: black)
+// Neutral colors for the measuring pass: the geometry is the drawing's, and
+// geometry is all that matters here.
+#let _neutral-ink = (strong: black, soft: black, faint: black)
 
-/// Measures one node, honoring `node-max-width` (the label wraps past it).
-/// Returns `(w, h)` in points. MUST be called inside `context`.
-///
-/// `emphasized` must match what the drawing pass will do with this node: an
-/// emphasized label is heavier, therefore wider.
-#let measure-node(
-  content,
-  node-max-width,
-  font,
-  text-size,
-  style,
-  depth,
-  emphasized: false,
-  root-max-width: none,
-) = {
-  let spec = node-spec(style, depth, emphasized: emphasized)
-  let paint = node-paint(spec, depth, black, _neutral-ink, none, neutral: true)
-  let natural = measure(node-body(content, spec, paint, font, text-size))
-  // The root is a heading, not a leaf: it gets its own (wider) cap.
-  let node-max-width = if depth == 0 and root-max-width != none { root-max-width } else { node-max-width }
-  if natural.width <= node-max-width {
-    return (w: natural.width.pt(), h: natural.height.pt())
-  }
-  // A largura entra na PRÓPRIA caixa do nó (não numa caixa em volta): assim o
-  // texto quebra dentro do inset, e a caixa desenhada tem exatamente esta
-  // largura. Medir por fora era o que deixava o rótulo vazar para fora dela.
-  let wrapped = measure(
-    node-body(content, spec, paint, font, text-size, width: node-max-width),
+/// What a node shows besides its label, decided ONCE here and carried on the
+/// measured node to the drawing pass, so both passes agree.
+#let dressing(n, depth, index, opts) = {
+  let role = n.at("emphasis", default: none)
+  (
+    emphasized: role != none and opts.markers == "none",
+    surfaced: opts.surface == "all" or (opts.surface == "branches" and depth == 1),
+    number: if depth == 1 { (if index < 9 { "0" } else { "" }) + str(index + 1) } else { none },
+    tag: if opts.markers == "role" and role != none and depth >= 2 {
+      opts.emphasis-labels.at(role, default: none)
+    } else { none },
   )
-  (w: node-max-width.pt(), h: wrapped.height.pt())
 }
 
-/// Annotates every node of the tree with `w`/`h` (in points).
-/// MUST be called inside `context`. `depth` picks the measured style, which is
-/// what keeps the measuring and the drawing passes in agreement.
-#let measure-tree(n, node-max-width, font, text-size, style, depth: 0, root-max-width: none) = {
-  let m = measure-node(
-    n.content,
-    node-max-width,
-    font,
-    text-size,
-    style,
-    depth,
-    emphasized: n.at("emphasis", default: none) != none,
-    root-max-width: root-max-width,
-  )
+/// Measures one node. Returns `(w, h, a)` in points: `a` is where an edge
+/// lands, measured from the node's top — on the rule, in the middle of a
+/// frame, or on the middle of the first line. MUST be called inside `context`.
+#let measure-node(content, depth, opts, dress) = {
+  let spec = node-spec(opts.style, depth, emphasized: dress.emphasized, surfaced: dress.surfaced)
+  let paint = node-paint(spec, depth, black, _neutral-ink, none,
+    role: if dress.tag != none { black } else { none }, neutral: true)
+  let body(width) = node-body(content, spec, paint, opts.font, opts.text-size,
+    width: width, number: dress.number, tag: dress.tag, mono-font: opts.mono-font)
+  let max-w = if depth == 0 { opts.root-max-width } else { opts.node-max-width }
+  let natural = measure(body(auto))
+  let (w, h) = if natural.width <= max-w { (natural.width, natural.height) } else {
+    // The width goes INTO the node's own box, so the label wraps inside the inset.
+    (max-w, measure(body(max-w)).height)
+  }
+  let cap = measure(text(font: opts.font, size: opts.text-size * spec.scale, weight: spec.weight)[X]).height
+  let a = if spec.rule != none { h - spec.rule / 2 }
+    else if spec.frame in ("box", "filled", "surface") { h / 2 }
+    else { inset-top(spec.inset) + cap / 2 }
+  (w: w.pt(), h: h.pt(), a: a.pt())
+}
+
+/// Annotates every node with `w`, `h`, `a` and its dressing. MUST be called
+/// inside `context`. `index` is the node's position among its siblings.
+#let measure-tree(n, opts, depth: 0, index: 0) = {
+  let dress = dressing(n, depth, index, opts)
+  let m = measure-node(n.content, depth, opts, dress)
   (
     ..n,
-    children: n.children.map(c => measure-tree(
-      c,
-      node-max-width,
-      font,
-      text-size,
-      style,
-      depth: depth + 1,
-      root-max-width: root-max-width,
-    )),
+    ..dress,
+    children: n.children.enumerate().map(((i, c)) => measure-tree(c, opts, depth: depth + 1, index: i)),
     w: m.w,
     h: m.h,
+    a: m.a,
   )
 }
 

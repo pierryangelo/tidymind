@@ -1,20 +1,17 @@
-// Fonte ÚNICA da aparência de um nó.
+// Single source of how a node looks.
 //
-// Medir e desenhar precisam produzir exatamente a mesma caixa. Enquanto isso
-// viveu em dois arquivos "espelhados à mão", qualquer ajuste de inset ou de
-// peso de fonte num deles desalinhava o traço no outro. Aqui a geometria é
-// declarada uma vez: `layout.typ` mede este corpo e `draw.typ` desenha ESTE
-// mesmo corpo, com as cores por cima.
+// Measuring and drawing must produce exactly the same box. `layout.typ`
+// measures THIS body and `draw.typ` draws THIS body, with the colors on top.
 
-/// Text colors. `strong` is the label ink, `soft` the ink of deeper labels in
-/// the `"outline"` style.
+/// Text colors: `strong` for the root and branches, `soft` for points,
+/// `faint` for details (depth 3 and deeper).
 #let default-ink = (
   strong: rgb("#1e293b"),
   soft: rgb("#475569"),
+  faint: rgb("#64748b"),
 )
 
-/// Role → color. Roles are named by the caller and resolved here, so a document
-/// never has to hardcode a hex value to say "this node is a warning".
+/// Role → color. Roles are named by the caller and resolved here.
 #let default-emphasis-colors = (
   highlight: rgb("#2a72ae"),
   warning: rgb("#b45309"),
@@ -22,104 +19,153 @@
   example: rgb("#1769aa"),
 )
 
+/// Role → the short tag drawn in front of the label when `markers: "role"`.
+#let default-emphasis-labels = (
+  highlight: "key",
+  warning: "warn",
+  definition: "def.",
+  example: "e.g.",
+)
+
+#let styles = ("boxed", "outline", "technical", "bar", "block")
+
+/// Depth class: 0 root, 1 branch, 2 point, 3 detail (and everything deeper).
+#let level(depth) = calc.min(depth, 3)
+
+/// Top inset of a node, whatever shape `inset` was given in.
+#let inset-top(inset) = {
+  if type(inset) == length { return inset }
+  inset.at("top", default: inset.at("y", default: inset.at("rest", default: 0pt)))
+}
+
 /// Geometry and typography of a node, by style and depth.
 ///
 /// - `"boxed"`: every node is a rounded box, the root filled with its color.
-/// - `"outline"`: no boxes at all. The root is a heading over a baseline rule,
-///   a first-level branch is a label resting on a rule in its branch color, and
-///   deeper nodes are plain text. Hierarchy comes from size, weight and color.
+/// - `"outline"`: the root over a rule, a branch beside a capsule in its color,
+///   deeper nodes plain text.
+/// - `"technical"`: the root over a rule, a branch numbered (01, 02) over a rule
+///   in its color, points with a square marker, details with a hollow one.
+/// - `"bar"`: the root and branches over thick rules; pairs with `edge: "tapered"`.
+/// - `"block"`: the root and branches filled, deeper nodes plain text.
 ///
-/// `emphasized` belongs HERE, not in the painting step: a role makes the label
-/// heavier as well as colored, and weight changes how wide the label is. Left
-/// out of the spec, a node would be measured light and drawn heavy — and then
-/// the label no longer fits the box the layout reserved for it.
-#let node-spec(style, depth, emphasized: false) = {
+/// `emphasized` belongs here: a role makes the label heavier, and weight
+/// changes how wide the label is. `surfaced` turns the node into a tinted card.
+#let node-spec(style, depth, emphasized: false, surfaced: false) = {
   let emph(weight) = if emphasized and weight == "regular" { "semibold" } else { weight }
+  let lv = level(depth)
+  let plain = (radius: 0pt, frame: "none", rule: none, capsule: false, prefix: none)
+  let point = (..plain, scale: 1.0, weight: emph("regular"), inset: (x: 2pt, y: 2pt), ink: "soft")
+  let detail = (..point, scale: 0.92, ink: "faint")
 
-  if style == "outline" {
-    if depth == 0 {
-      (scale: 1.5, weight: "bold", inset: (x: 2pt, y: 3pt), frame: "underline")
-    } else if depth == 1 {
-      (scale: 1.1, weight: "semibold", inset: (left: 6pt, rest: 3pt), frame: "side-rule")
-    } else {
-      (scale: 1.0, weight: emph("regular"), inset: (x: 2pt, y: 2pt), frame: "none")
-    }
+  let spec = if style == "boxed" {
+    (..plain, scale: 1.0, weight: emph(if depth == 0 { "bold" } else { "regular" }),
+      inset: (x: 8pt, y: 4pt), radius: 4pt, frame: "box", ink: "strong")
+  } else if style == "outline" {
+    if lv == 0 { (..plain, scale: 1.5, weight: "bold", inset: (x: 2pt, top: 3pt, bottom: 4pt), rule: 1.2pt, ink: "strong") }
+    else if lv == 1 { (..plain, scale: 1.1, weight: emph("semibold"), inset: (left: 8pt, rest: 3pt), capsule: true, ink: "strong") }
+    else if lv == 2 { point } else { detail }
+  } else if style == "technical" {
+    if lv == 0 { (..plain, scale: 1.5, weight: "bold", inset: (x: 2pt, top: 2pt, bottom: 6pt), rule: 1.6pt, ink: "strong") }
+    else if lv == 1 { (..plain, scale: 1.05, weight: emph("semibold"), inset: (x: 3pt, top: 2pt, bottom: 6pt), rule: 1.4pt, prefix: "number", ink: "strong") }
+    else if lv == 2 { (..point, prefix: "square") } else { (..detail, prefix: "square-hollow") }
+  } else if style == "bar" {
+    if lv == 0 { (..plain, scale: 1.5, weight: "bold", inset: (x: 3pt, top: 2pt, bottom: 8pt), rule: 4pt, ink: "strong") }
+    else if lv == 1 { (..plain, scale: 1.1, weight: emph("semibold"), inset: (x: 4pt, top: 2pt, bottom: 7pt), rule: 3.5pt, ink: "strong") }
+    else if lv == 2 { point } else { detail }
   } else {
-    (
-      scale: 1.0,
-      weight: emph(if depth == 0 { "bold" } else { "regular" }),
-      inset: (x: 8pt, y: 4pt),
-      radius: 4pt,
-      frame: "box",
-    )
+    if lv == 0 { (..plain, scale: 1.3, weight: "bold", inset: (x: 9pt, y: 5pt), radius: 4pt, frame: "filled", ink: "on-fill") }
+    else if lv == 1 { (..plain, scale: 1.0, weight: "semibold", inset: (x: 7pt, y: 3.5pt), radius: 4pt, frame: "filled", prefix: "number", ink: "on-fill") }
+    else if lv == 2 { point } else { detail }
   }
+
+  // A surface is a tinted card. It replaces the rule (the card already marks
+  // the node), keeps the capsule inside, and never applies to a filled node.
+  if surfaced and spec.frame in ("none", "box") {
+    spec = (..spec, frame: "surface", rule: none, radius: 4pt,
+      inset: (left: if spec.capsule { 10pt } else { 7pt }, right: 7pt, y: 3.5pt))
+  }
+  spec
 }
 
-/// Colors for a node: `(fill, stroke, text)`.
-///
-/// `color` is the resolved branch color and `emphasis` the resolved role color
-/// (`none` when the node has no role). Pass `neutral: true` to get the same
-/// shapes with no color — that is how the measuring pass runs, so it produces
-/// the exact geometry of the drawing pass.
-#let node-paint(spec, depth, color, ink, emphasis, neutral: false) = {
+/// Colors for a node. `color` is the branch color; `emphasis` the role color
+/// that recolors the label (`markers: "none"`), or `none`; `role` the color of
+/// the role tag (`markers: "role"`), or `none`. `neutral: true` gives the same
+/// shapes with no color: that is how the measuring pass runs.
+#let node-paint(spec, depth, color, ink, emphasis, role: none, neutral: false) = {
+  let k(c) = if neutral { black } else { c }
   let frame = spec.frame
-
+  let base = if spec.ink == "on-fill" { white } else { ink.at(spec.ink) }
+  let label = if emphasis != none and depth > 0 and frame not in ("box", "filled") { emphasis } else { base }
+  let common = (
+    rule: if spec.rule == none { none } else if depth == 0 { k(ink.strong) } else { k(color) },
+    prefix: if frame == "filled" { if neutral { black } else { white.transparentize(25%) } } else { k(color) },
+    capsule: k(color),
+    tag: if role == none { k(black) } else { k(role) },
+    tag-fill: if neutral or role == none { none } else { role.lighten(88%) },
+  )
   if frame == "box" {
     let root = depth == 0
-    return (
+    return (..common,
       fill: if neutral { none } else if root { color } else { white },
-      stroke: if root { none } else { 0.8pt + (if neutral { black } else { color }) },
-      text: if neutral { black } else if root { white } else { ink.strong },
-    )
+      stroke: if root { none } else { 0.8pt + k(color) },
+      text: if neutral { black } else if root { white } else { ink.strong })
   }
-  if frame == "underline" {
-    return (
-      fill: none,
-      stroke: (bottom: 1.2pt + (if neutral { black } else { ink.strong })),
-      text: if neutral { black } else { ink.strong },
-    )
+  if frame == "filled" {
+    return (..common, fill: k(if depth == 0 { ink.strong } else { color }), stroke: none, text: k(white))
   }
-  if frame == "side-rule" {
-    return (
-      fill: none,
-      stroke: (left: 2pt + (if neutral { black } else { color })),
-      text: if neutral { black } else if emphasis == none { ink.strong } else { emphasis },
-    )
+  if frame == "surface" {
+    return (..common,
+      fill: if neutral { none } else { color.lighten(90%) },
+      stroke: 0.6pt + (if neutral { black } else { color.lighten(68%) }),
+      text: k(label))
   }
-  (
-    fill: none,
-    stroke: none,
-    text: if neutral { black } else if emphasis == none { ink.soft } else { emphasis },
-  )
+  (..common, fill: none, stroke: none, text: k(label))
 }
 
-/// Thickness of the edge leaving a node at `depth`. In `"outline"` the stroke
-/// thins out with depth, which reads as a branch tapering into twigs; in
-/// `"boxed"` every edge keeps the same weight.
+/// Thickness of the edge leaving a node at `depth`.
 #let edge-width(style, depth) = {
-  if style != "outline" { return 1pt }
+  if style == "boxed" { return 1pt }
+  if style == "bar" { return if depth == 0 { 3.5pt } else if depth == 1 { 1.8pt } else { 1pt } }
   if depth == 0 { 1.4pt } else if depth == 1 { 0.9pt } else { 0.6pt }
 }
 
-/// The node body itself — the one box that gets both measured and drawn.
-/// `width` is `auto` while measuring the natural size, and a fixed length once
-/// the layout knows how wide the node ended up.
-#let node-body(content, spec, paint, font, text-size, width: auto) = box(
-  width: width,
-  fill: paint.fill,
-  stroke: paint.stroke,
-  radius: spec.at("radius", default: 0pt),
-  inset: spec.inset,
-  {
-    // A node label is a label, not a paragraph: the document's justification
-    // and hyphenation must not leak into it.
-    set par(justify: false)
-    set text(hyphenate: false)
-    text(
-      font: font,
-      size: text-size * spec.scale,
-      weight: spec.weight,
-      fill: paint.text,
-    )[#content]
-  },
-)
+/// The node body: the one box that gets both measured and drawn. `width` is
+/// `auto` while measuring the natural size, and a fixed length once the layout
+/// knows how wide the node ended up.
+#let node-body(content, spec, paint, font, text-size, width: auto, number: none, tag: none, mono-font: "DejaVu Sans Mono") = {
+  let size = text-size * spec.scale
+  let marks = ()
+  if spec.prefix == "number" and number != none {
+    marks.push(text(font: mono-font, size: size * 0.78, weight: "bold", fill: paint.prefix, number))
+  } else if spec.prefix in ("square", "square-hollow") {
+    let s = size * 0.4
+    marks.push(box(width: s, height: s, radius: s * 0.2, baseline: -(size * 0.3 - s / 2),
+      fill: if spec.prefix == "square" { paint.prefix } else { none },
+      stroke: if spec.prefix == "square" { none } else { 0.7pt + paint.prefix }))
+  }
+  if tag != none {
+    marks.push(box(fill: paint.tag-fill, radius: 2pt, inset: (x: 2.2pt, y: 1.2pt), baseline: 1.2pt,
+      text(font: mono-font, size: size * 0.72, weight: "bold", fill: paint.tag, tag)))
+  }
+  // Marks sit in a column of their own, so a wrapped label hangs aligned
+  // after them. The zero-width strut gives the mark column the label's line
+  // height, which keeps both first lines on the same baseline.
+  let label = if marks.len() == 0 { content } else {
+    let lead = box(width: 0pt, height: size * 0.73) + marks.join(h(size * 0.35))
+    grid(columns: (auto, if width == auto { auto } else { 1fr }), column-gutter: size * 0.45, lead, content)
+  }
+  box(
+    width: width,
+    fill: paint.fill,
+    stroke: paint.stroke,
+    radius: spec.radius,
+    inset: spec.inset,
+    {
+      // A node label is a label, not a paragraph: the document's justification
+      // and hyphenation must not leak into it.
+      set par(justify: false)
+      set text(hyphenate: false)
+      text(font: font, size: size, weight: spec.weight, fill: paint.text, label)
+    },
+  )
+}
