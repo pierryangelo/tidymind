@@ -3,7 +3,8 @@
 // used to inherit both: words split with a hyphen and gaps opened between
 // them. And the root, capped at the leaves' width, broke mid-word too.
 #import "../src/tree.typ": normalize
-#import "../src/layout.typ": measure-tree
+#import "../src/layout.typ": measure-tree, measure-node
+#import "../src/style.typ": node-spec
 #set page(width: auto, height: auto)
 #set text(lang: "pt", hyphenate: true)
 #set par(justify: true)
@@ -26,5 +27,20 @@
   let word = measure(text(font: "Inter", size: 9pt * 1.5, weight: "bold")[Comutação]).height.pt()
   assert(ml.w <= 5cm.pt() + 0.1, message: "a long root is capped at root-max-width")
   assert(ml.h > word * 2, message: "a long root wraps onto more lines")
+
+  // Hyphenation must not leak into a label. Pick a leaf width where it would
+  // SAVE a line: wide enough for "Comutação Comu-" and "tação Comutação"
+  // (2 lines, hyphenated), too narrow for "Comutação Comutação". A label that
+  // keeps its words whole needs 3 lines there.
+  let label = [Comutação Comutação Comutação]
+  let tw(c) = measure(text(font: "Inter", size: 9pt, hyphenate: false)[#c]).width
+  let hyphenated = calc.max(tw[Comutação Comu-], tw[tação Comutação])
+  let whole = tw[Comutação Comutação]
+  let inset = node-spec("outline", 2).inset.x * 2
+  let w = (hyphenated + whole) / 2 + inset
+  assert(w < whole + inset, message: "the width must be too narrow for two whole words")
+  let two-lines = measure-node([Comutação #linebreak() Comutação], 100cm, "Inter", 9pt, "outline", 2).h
+  let h = measure-node(label, w, "Inter", 9pt, "outline", 2).h
+  assert(h > two-lines, message: "a label keeps its words whole: no hyphenation from the document")
 }
 #[OK]
