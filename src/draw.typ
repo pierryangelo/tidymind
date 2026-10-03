@@ -1,11 +1,12 @@
 #import "@preview/cetz:0.5.2"
 #import "style.typ": edge-width, node-body, node-paint, node-spec
 
-// Branch color. An explicit `branch` (1..n) wins over the natural position;
-// the root, which belongs to no branch, takes the first palette color.
+// Branch color: a lookup of the `branch-index` the layout resolved (the
+// position, or the nearest explicit `branch` up the tree). The root, which
+// belongs to no branch, takes its own `branch` or the first palette color.
 #let _branch-color(n, palette) = {
-  let idx = if n.at("branch", default: none) != none { n.branch - 1 }
-    else if n.branch-index < 0 { 0 } else { n.branch-index }
+  let idx = if n.branch-index >= 0 { n.branch-index }
+    else if n.at("branch", default: none) != none { n.branch - 1 } else { 0 }
   palette.at(calc.rem(idx, palette.len()))
 }
 

@@ -75,8 +75,11 @@
 }
 
 // Pre-order: x/y/side/branch-index. `dist` is the distance from the root's
-// left edge to this node's near edge (right side) — mirrored on the left.
+// left edge to this node's near edge (right side), mirrored on the left.
+// `branch` is the palette index inherited from above; an explicit `branch`
+// (1..n) on this node replaces it for the node and its whole subtree.
 #let _place(n, side, top, depth, dist, ctx, branch) = {
+  let branch = if n.at("branch", default: none) != none { n.branch - 1 } else { branch }
   let d = if ctx.starts != none { ctx.starts.at(depth - 1) } else { dist }
   let y = top + n.ext / 2
   let x = if side > 0 { d } else { -(d - ctx.root-w) - n.w }

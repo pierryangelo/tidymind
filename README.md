@@ -231,8 +231,10 @@ spacing.
 ## Roles and branch colors
 
 A node can carry an `emphasis` (its role) and a `branch` index that overrides
-the color it would inherit from its position. Both are given by **name**: the
-document says what a node *means*, and the package resolves the color.
+the color it would inherit from its position. The override covers the node's
+whole subtree (edges, rules, numbers, markers, cards), unless a descendant sets
+its own `branch`. Both are given by **name**: the document says what a node
+*means*, and the package resolves the color.
 
 ````typ
 #mindmap(
@@ -243,6 +245,7 @@ document says what a node *means*, and the package resolves the color.
     ),
     node([REVOKE], branch: 5,
       node([RESTRICT is the default], emphasis: "highlight"),
+      node([`REVOKE ALL ON t FROM u`], emphasis: "example"),
     ),
   ),
   style: "outline",
@@ -354,7 +357,9 @@ label ends where its edge arrives, and a label no longer inherits the
 document's alignment. A root longer than `node-max-width` now wraps at up to twice that
 width (`root-max-width: auto`); pass `root-max-width` equal to `node-max-width`
 (e.g. `6cm`) for the old layout. Nodes now sit exactly at their layout position
-(a sub-point shift) and edges have round caps. Apart from the palette,
+(a sub-point shift) and edges have round caps. An explicit `branch` now
+colors the node's whole subtree, not just the node (its children used to fall
+back to their position's color). Apart from the palette,
 `style: "boxed"` renders what 0.2.0 rendered.
 
 **0.2.0** — adds `style: "outline"`, the `branch` and `emphasis` attributes on

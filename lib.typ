@@ -16,7 +16,8 @@
 /// arguments are its children.
 ///
 /// - `branch`: index (1..n) into the palette, overriding the color the node
-///   would inherit from its position.
+///   would inherit from its position. Its whole subtree takes the same color,
+///   unless a descendant sets its own `branch`.
 /// - `emphasis`: the role of the node, a key of `emphasis-colors` (and of
 ///   `emphasis-labels`), by default `highlight`, `warning`, `definition` or
 ///   `example`.
