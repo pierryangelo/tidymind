@@ -122,7 +122,7 @@
     line((n.x + r, y), (n.x + n.w - r, y), stroke: (paint: paint.rule, thickness: spec.rule, cap: "round"))
   }
   content((n.x, -top), anchor: "north-west", node-body(n.content, spec, paint, opts.font, opts.text-size,
-    width: n.w * 1pt, number: n.number, tag: n.tag, mono-font: opts.mono-font))
+    width: n.w * 1pt, number: n.number, tag: n.tag, mono-font: opts.mono-font, side: _side(n)))
   // The capsule: 60% of the node's height, centered, fully rounded.
   if spec.capsule {
     let x = n.x + (if spec.frame == "surface" { 4 } else { 1.2 })

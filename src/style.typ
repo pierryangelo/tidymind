@@ -131,8 +131,10 @@
 
 /// The node body: the one box that gets both measured and drawn. `width` is
 /// `auto` while measuring the natural size, and a fixed length once the layout
-/// knows how wide the node ended up.
-#let node-body(content, spec, paint, font, text-size, width: auto, number: none, tag: none, mono-font: "DejaVu Sans Mono") = {
+/// knows how wide the node ended up. `side` is where the node sits: on the left
+/// (`-1`) the label is right-aligned, so a wrapped label ends where its edge
+/// arrives. Alignment never changes the box, so measuring needs no side.
+#let node-body(content, spec, paint, font, text-size, width: auto, number: none, tag: none, mono-font: "DejaVu Sans Mono", side: 1) = {
   let size = text-size * spec.scale
   let marks = ()
   if spec.prefix == "number" and number != none {
@@ -145,9 +147,13 @@
   }
   if tag != none {
     // The vertical padding is an outset: the tag text sits on the line's
-    // baseline and the tint does not make the line taller.
-    marks.push(box(fill: paint.tag-fill, radius: 2pt, inset: (x: 2.2pt), outset: (y: 1.2pt),
-      text(font: mono-font, size: size * 0.72, weight: "bold", fill: paint.tag, tag)))
+    // baseline and the tint does not make the line taller. The tag's own text
+    // stays left-aligned: inherited right alignment shifts it off-center in
+    // its tint on the left side.
+    marks.push(box(fill: paint.tag-fill, radius: 2pt, inset: (x: 2.2pt), outset: (y: 1.2pt), {
+      set align(left)
+      text(font: mono-font, size: size * 0.72, weight: "bold", fill: paint.tag, tag)
+    }))
   }
   // Marks go inline at the start of the label's first paragraph, so a mark
   // and the first line share one baseline whatever the label's font or size.
@@ -172,8 +178,10 @@
     {
       // A node label is a label, not a document paragraph: the document's
       // justification, first-line indent and hyphenation must not leak into
-      // it, including the paragraph that carries marks.
+      // it, including the paragraph that carries marks. Nor does its
+      // alignment: a map in a centered figure keeps its labels flush.
       set par(justify: false, first-line-indent: 0pt)
+      set align(if side < 0 { right } else { left })
       set text(hyphenate: false)
       text(font: font, size: size, weight: spec.weight, fill: paint.text, label)
     },
