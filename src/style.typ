@@ -69,8 +69,8 @@
     else if lv == 1 { (..plain, scale: 1.05, weight: emph("semibold"), inset: (x: 3pt, top: 2pt, bottom: 6pt), rule: 1.4pt, prefix: "number", ink: "strong") }
     else if lv == 2 { (..point, prefix: "square") } else { (..detail, prefix: "square-hollow") }
   } else if style == "bar" {
-    if lv == 0 { (..plain, scale: 1.5, weight: "bold", inset: (x: 3pt, top: 2pt, bottom: 8pt), rule: 4pt, ink: "strong") }
-    else if lv == 1 { (..plain, scale: 1.1, weight: emph("semibold"), inset: (x: 4pt, top: 2pt, bottom: 7pt), rule: 3.5pt, ink: "strong") }
+    if lv == 0 { (..plain, scale: 1.5, weight: "bold", inset: (x: 3pt, top: 2pt, bottom: 7pt), rule: 3.4pt, ink: "strong") }
+    else if lv == 1 { (..plain, scale: 1.1, weight: emph("semibold"), inset: (x: 4pt, top: 2pt, bottom: 5pt), rule: 1.8pt, ink: "strong") }
     else if lv == 2 { point } else { detail }
   } else {
     if lv == 0 { (..plain, scale: 1.3, weight: "bold", inset: (x: 9pt, y: 5pt), radius: 4pt, frame: "filled", ink: "on-fill") }
@@ -125,7 +125,7 @@
 /// Thickness of the edge leaving a node at `depth`.
 #let edge-width(style, depth) = {
   if style == "boxed" { return 1pt }
-  if style == "bar" { return if depth == 0 { 3.5pt } else if depth == 1 { 1.8pt } else { 1pt } }
+  if style == "bar" { return if depth == 0 { 1.8pt } else if depth == 1 { 0.9pt } else { 0.7pt } }
   if depth == 0 { 1.4pt } else if depth == 1 { 0.9pt } else { 0.6pt }
 }
 

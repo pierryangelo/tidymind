@@ -1,11 +1,18 @@
 # tidymind
 
-Horizontal mind map diagrams for [Typst](https://typst.app), built on
-[CeTZ](https://typst.app/universe/package/cetz/). Every node is measured before
-the layout runs, so long labels never overlap — the common failure of
-fixed-spacing tree drawers.
+Mind maps for [Typst](https://typst.app), built on [CeTZ](https://typst.app/universe/package/cetz/),
+that lay themselves out. You write the tree; tidymind measures every label and places each branch so nothing overlaps.
 
-![A mind map with a filled root and rounded, colored nodes](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/shallow.png)
+![A four-level mind map about network switching in the technical style: numbered branches on colored rules, square markers, role tags and an emoji on every label](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/hero.png)
+
+## Why tidymind
+
+- **No overlap at any depth.** Every node is measured before the layout runs, so a label that wraps gets the room it needs.
+- **Five styles:** `boxed`, `outline`, `technical`, `bar` and `block`.
+- **Three edges:** curved, straight, or tapered ribbons that thin toward the leaves.
+- **One side or two:** grow the map to the right, to the left, or both ways, balanced by size.
+- **Roles by name:** mark a node as a warning, a definition or an example, and get a tag or a color.
+- **Labels that read like labels:** any Typst content, never hyphenated or justified by the surrounding document.
 
 ## What's new in 0.3.0
 
@@ -14,9 +21,10 @@ fixed-spacing tree drawers.
 - `direction: "left"` and `direction: "both"`; `align-levels` lines up each depth in one column.
 - `surface` turns nodes into tinted cards; `markers: "role"` tags a node's role instead of recoloring it.
 - Four levels with their own look (root, branch, point, detail).
+- A new default palette, "Slate": six muted colors that read well on white.
 - A label ignores the document's justification and hyphenation: inside a justified, hyphenated document it used to split words and open gaps.
 
-![The same map in every style and edge](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/gallery.png)
+![The same four-level map in the five styles: boxed, outline, technical, bar with tapered edges, and block](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/gallery.png)
 
 ## Usage
 
@@ -37,7 +45,7 @@ raw content). A raw dictionary `(content: .., children: (..))` is also accepted.
 
 This is the case that pushed the package into existence. Node sizes come from
 Typst's `measure`, so a label that wraps reserves the vertical band it actually
-needs — at any depth, with no manual offsets.
+needs, at any depth, with no manual offsets.
 
 ![Two long labels wrapped at node-max-width, neither overlapping the other](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/long_labels.png)
 
@@ -49,7 +57,7 @@ filled with its branch color.
 `style: "outline"` drops the boxes entirely: the root becomes a heading over a
 baseline rule, each first-level branch a label beside a rounded capsule in its
 own color, and everything deeper is plain text. Hierarchy comes from size, weight
-and color instead of from frames — useful when the map sits inside a document
+and color instead of from frames, which helps when the map sits inside a document
 and boxes would fight with the surrounding text.
 
 ![The same tree in the outline style, with no boxes around any node](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/outline.png)
@@ -59,11 +67,14 @@ and boxes would fight with the surrounding text.
 Three more styles build on the same tree. The examples below all draw this one:
 
 ````typ
-#let switching = node([Switching techniques],
+#let switching = node([Network switching],
   node([Circuit switching],
-    node([Dedicated channel (`FDM` or `TDM`)]),
-    node([Three phases: setup, transfer, teardown]),
-    node([Idle time wastes fixed bandwidth], emphasis: "warning"),
+    node([Dedicated channel],
+      node([`FDM` splits the frequency band]),
+      node([`TDM` splits time into slots]),
+    ),
+    node([Setup, transfer and teardown]),
+    node([Idle time wastes reserved bandwidth], emphasis: "warning"),
   ),
   node([Message switching],
     node([Whole-message store-and-forward], emphasis: "definition"),
@@ -73,7 +84,7 @@ Three more styles build on the same tree. The examples below all draw this one:
     node([Statistical multiplexing]),
     node([Modes],
       node([Datagram (connectionless)]),
-      node([Virtual circuit], node([`MPLS`], emphasis: "example")),
+      node([Virtual circuit], node([`MPLS`, Frame Relay], emphasis: "example")),
     ),
   ),
 )
@@ -81,28 +92,29 @@ Three more styles build on the same tree. The examples below all draw this one:
 
 `style: "technical"` reads like a spec sheet: the root and each first-level
 branch sit on a rule that the edge runs into, branches are numbered, and points
-get a small square marker.
+get a small square marker. Here with role tags and `align-levels`:
 
 ````typ
 #mindmap(switching, style: "technical", markers: "role", align-levels: true)
 ````
 
-![The technical style: numbered branches on colored rules, square markers on the points](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/technical.png)
+![The technical style: numbered branches on colored rules, square markers on the points, every depth in its own column](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/technical.png)
 
-`style: "bar"` draws the root and the branches over thick rules, and pairs with
-the tapered edge.
+`style: "bar"` draws the root and the branches over rules, and pairs with
+the tapered edge, which runs from the root's rule into each branch's and thins
+toward the leaves.
 
 ````typ
-#mindmap(switching, style: "bar", edge: "tapered")
+#mindmap(switching, style: "bar", edge: "tapered", markers: "role")
 ````
 
-![The bar style: thick rules under the root and the branches, tapered edges](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/bar.png)
+![The bar style: rules under the root and the branches, joined by tapered edges](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/bar.png)
 
 `style: "block"` fills the root and the first-level branches, numbered, and
 leaves everything deeper as plain text.
 
 ````typ
-#mindmap(switching, style: "block", edge: "straight")
+#mindmap(switching, style: "block", edge: "straight", markers: "role")
 ````
 
 ![The block style: filled, numbered branches and straight edges](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/block.png)
@@ -111,26 +123,30 @@ leaves everything deeper as plain text.
 
 `edge` picks how a parent reaches its children: `"curved"` (the default),
 `"straight"`, or `"tapered"`, a filled ribbon that thins from the parent to the
-child. Any edge goes with any style; the gallery at the top shows every pair.
-Below the first level, edges are drawn lighter in every style but `"boxed"`.
+child. Any edge goes with any style. Below the first level, edges are drawn
+lighter in every style but `"boxed"`.
 
 ````typ
-#mindmap(switching, style: "bar", edge: "tapered")
-#mindmap(switching, style: "block", edge: "straight")
+#mindmap(switching, style: "technical", edge: "curved", markers: "role")
+#mindmap(switching, style: "technical", edge: "straight", markers: "role")
+#mindmap(switching, style: "technical", edge: "tapered", markers: "role")
 ````
+
+![The technical map three times: curved, straight and tapered edges](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/edges.png)
 
 ## Direction and columns
 
 `direction: "left"` grows the map to the left; `direction: "both"` sends the
 first branches to the right and the rest to the left, split so both sides carry
-about the same height. `align-levels: true` starts every depth at one column per
-side instead of right after its parent.
+about the same height. A label on the left side is right-aligned, so it ends
+where its edge arrives. `align-levels: true` starts every depth at one column
+per side instead of right after its parent (see the technical example above).
 
 ````typ
 #mindmap(switching, style: "technical", direction: "both", markers: "role")
 ````
 
-![The same map growing both ways, one branch to the right and two to the left](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/both.png)
+![The same map growing both ways: circuit switching to the right, message and packet switching to the left](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/both.png)
 
 ## Surface
 
@@ -138,25 +154,61 @@ side instead of right after its parent.
 color; `surface: "all"` does the same for every node.
 
 ````typ
-#mindmap(switching, style: "outline", surface: "all")
+#mindmap(switching, style: "outline", surface: "branches", markers: "role")
+#mindmap(switching, style: "technical", surface: "all", markers: "role")
 ````
 
-![The outline style with every node on a tinted card](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/surface.png)
+![Two maps: the outline style with the branches on tinted cards, then the technical style with every node on a card](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/surface.png)
 
 ## Role markers
 
 By default a node's `emphasis` recolors its label (see "Roles and branch
 colors" below). `markers: "role"` keeps the label in the normal ink and puts a
 short tag in front of it instead, in `mono-font`. `emphasis-labels` changes the
-tag text; a partial dictionary merges over the defaults (`key`, `warn`, `def.`,
-`e.g.`).
+tag text, e.g. `emphasis-labels: (warning: "watch out")`; a partial dictionary
+merges over the defaults (`key`, `warn`, `def.`, `e.g.`).
 
 ````typ
-#mindmap(switching, style: "technical", markers: "role",
-  emphasis-labels: (warning: "watch out"))
+#mindmap(switching, style: "technical")
+#mindmap(switching, style: "technical", markers: "role")
 ````
 
-![Role tags in front of the labels, one of them renamed to "watch out"](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/markers.png)
+![The same map twice: first the roles recolor their labels, then they appear as tags in front of the labels](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/markers.png)
+
+## Markup and emoji
+
+Labels take any Typst content: `*strong*`, `` `raw` ``, math, links. Emoji work
+too, as long as a color emoji font is in the `font` fallback list. This is the
+map at the top of the page:
+
+````typ
+#let switching = node([🌐 Network switching],
+  node([📞 Circuit switching],
+    node([🎯 Dedicated channel],
+      node([📻 `FDM` splits the frequency band]),
+      node([⏱️ `TDM` splits time into slots]),
+    ),
+    node([🔁 Setup, transfer and teardown]),
+    node([💸 Idle time wastes reserved bandwidth], emphasis: "warning"),
+  ),
+  node([📦 Message switching],
+    node([💾 Whole-message *store-and-forward*], emphasis: "definition"),
+    node([🚫 No fragmentation]),
+  ),
+  node([⚡ Packet switching],
+    node([📊 Statistical multiplexing]),
+    node([🔀 Modes],
+      node([✉️ Datagram (connectionless)]),
+      node([🛣️ Virtual circuit], node([🏷️ `MPLS`, Frame Relay], emphasis: "example")),
+    ),
+  ),
+)
+
+#mindmap(switching, style: "technical", markers: "role",
+  font: ("Inter", "Noto Color Emoji"))
+````
+
+![The network switching map with an emoji at the start of every label, bold text and inline code](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/markdown_emoji.png)
 
 ## Labels inside justified text
 
@@ -178,7 +230,7 @@ spacing.
 
 ## Roles and branch colors
 
-A node can carry an `emphasis` — its role — and a `branch` index that overrides
+A node can carry an `emphasis` (its role) and a `branch` index that overrides
 the color it would inherit from its position. Both are given by **name**: the
 document says what a node *means*, and the package resolves the color.
 
@@ -199,12 +251,24 @@ document says what a node *means*, and the package resolves the color.
 
 ![A map whose leaves are colored by role: definition, warning, highlight and example](https://raw.githubusercontent.com/pierryangelo/tidymind/v0.3.0/img/emphasis.png)
 
+## Palette
+
+`palette` gives one color per first-level branch, cycled. The default,
+"Slate", is six muted colors, each with at least 3.8:1 contrast on white, so a
+branch color holds up as a thin rule and as text:
+`#3d6fb6` blue, `#2b8576` teal, `#b8732a` amber, `#7d5aa6` violet,
+`#b0466a` rose, `#5a7a2c` olive.
+
+````typ
+#mindmap(switching, palette: (rgb("#1f4e79"), rgb("#1d6b5f"), rgb("#94570f")))
+````
+
 ## Options
 
 | Option | Default | Meaning | Since |
 |--------|---------|---------|-------|
 | `style` | `"boxed"` | `"boxed"`, `"outline"`, `"technical"`, `"bar"` or `"block"` | 0.2 |
-| `palette` | 6 colors | color per first-level branch, cycled | 0.1 |
+| `palette` | 6 colors | color per first-level branch, cycled; "Slate" by default (see Palette) | 0.1 |
 | `font` | `"Inter"` | label font, or a fallback list | 0.1 |
 | `text-size` | `9pt` | base label size; the root and first level scale up from it | 0.1 |
 | `node-max-width` | `6cm` | max width before a label wraps | 0.1 |
@@ -222,20 +286,12 @@ document says what a node *means*, and the package resolves the color.
 | `emphasis-labels` | 4 roles | tag text per role, merged over the defaults | 0.3 |
 | `mono-font` | `"DejaVu Sans Mono"` | font of branch numbers and role tags | 0.3 |
 
-Labels take arbitrary Typst content, so markup and emoji work — pass a color
-emoji font in the `font` fallback list to get the second one:
-
-````typ
-#mindmap(node([Git: #strong[what gets graded]], node([🥇 #strong[Remote sync] (35%)])),
-  font: ("Inter", "Noto Color Emoji"))
-````
-
 ## How it works
 
 The layout is a tidy tree by subtree extent: every subtree reserves a vertical
 band equal to the sum of its children's bands (or its own height, if a leaf), and
 the parent is centered within that band. Because sibling subtrees occupy disjoint
-bands, nodes never overlap — at any depth. It runs in O(n), in two passes: one
+bands, nodes never overlap, at any depth. It runs in O(n), in two passes: one
 up the tree to size the bands, one down to place the nodes.
 
 Node sizes come from Typst's `measure`, so a band accounts for the real rendered
@@ -265,16 +321,18 @@ missing font makes Typst warn, and any warning fails the run.
 | [`visual_long_labels`](examples/visual_long_labels.typ) | labels wrapping at `node-max-width` |
 | [`visual_outline`](examples/visual_outline.typ) | the `"outline"` style |
 | [`visual_emphasis`](examples/visual_emphasis.typ) | roles and branch overrides |
-| [`visual_markdown_emoji`](examples/visual_markdown_emoji.typ) | markup and emoji in labels |
+| [`visual_markdown_emoji`](examples/visual_markdown_emoji.typ) | markup and emoji in labels, with the font fallback list |
 | [`visual_single`](examples/visual_single.typ) | a lone root |
 | [`visual_empty`](examples/visual_empty.typ) | empty labels |
-| [`visual_gallery`](examples/visual_gallery.typ) | every style against every edge |
+| [`visual_hero`](examples/visual_hero.typ) | the map at the top of this page |
+| [`visual_gallery`](examples/visual_gallery.typ) | the five styles on one map |
+| [`visual_edges`](examples/visual_edges.typ) | the three edges on one map |
 | [`visual_technical`](examples/visual_technical.typ) | the `"technical"` style, role tags, `align-levels` |
 | [`visual_bar`](examples/visual_bar.typ) | the `"bar"` style with the tapered edge |
 | [`visual_block`](examples/visual_block.typ) | the `"block"` style with straight edges |
 | [`visual_both`](examples/visual_both.typ) | `direction: "both"` |
-| [`visual_surface`](examples/visual_surface.typ) | `surface: "all"` |
-| [`visual_markers`](examples/visual_markers.typ) | role tags with a renamed tag |
+| [`visual_surface`](examples/visual_surface.typ) | `surface: "branches"` and `surface: "all"` |
+| [`visual_markers`](examples/visual_markers.typ) | `markers: "none"` against `markers: "role"` |
 | [`visual_justified`](examples/visual_justified.typ) | labels inside a justified, hyphenated document |
 
 ## Changelog
@@ -285,7 +343,10 @@ missing font makes Typst warn, and any warning fails the run.
 longer inherits the document's justification and hyphenation (a label inside a
 justified document stops splitting words), and in `"outline"` the first-level
 rule becomes a rounded capsule and the edges below the first level are drawn
-lighter. Also in `"outline"`, the root's edges leave from its rule, labels at
+lighter. The default palette changed from the saturated 0.1/0.2 colors to
+"Slate", a muted set with at least 3.8:1 contrast on white; pass
+`palette: (rgb("#2563eb"), rgb("#16a34a"), rgb("#dc2626"), rgb("#9333ea"), rgb("#ea580c"), rgb("#0891b2"))`
+to keep the old look. Also in `"outline"`, the root's edges leave from its rule, labels at
 depth 3 and deeper are 92% size in the `faint` ink, edges at depth 2 and deeper
 land on the label's first line, and the branch inset grew to 8pt. A label on
 the left side (`direction: "left"` or `"both"`) is right-aligned, so a wrapped
@@ -293,8 +354,8 @@ label ends where its edge arrives, and a label no longer inherits the
 document's alignment. A root longer than `node-max-width` now wraps at up to twice that
 width (`root-max-width: auto`); pass `root-max-width` equal to `node-max-width`
 (e.g. `6cm`) for the old layout. Nodes now sit exactly at their layout position
-(a sub-point shift) and edges have round caps. `style: "boxed"` otherwise
-renders what 0.2.0 rendered.
+(a sub-point shift) and edges have round caps. Apart from the palette,
+`style: "boxed"` renders what 0.2.0 rendered.
 
 **0.2.0** — adds `style: "outline"`, the `branch` and `emphasis` attributes on
 `node`, and the `ink` / `emphasis-colors` options. The default output is

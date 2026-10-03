@@ -5,9 +5,11 @@
 #import "src/draw.typ": draw-mindmap
 #import "src/style.typ": default-emphasis-colors, default-emphasis-labels, default-ink, styles
 
+/// "Slate": six muted colors, each at least 3.8:1 against white, so a branch
+/// color stays readable as text and as a thin rule. Pass `palette:` to change it.
 #let default-palette = (
-  rgb("#2563eb"), rgb("#16a34a"), rgb("#dc2626"),
-  rgb("#9333ea"), rgb("#ea580c"), rgb("#0891b2"),
+  rgb("#3d6fb6"), rgb("#2b8576"), rgb("#b8732a"),
+  rgb("#7d5aa6"), rgb("#b0466a"), rgb("#5a7a2c"),
 )
 
 /// Builds a tree node. `content` is the label and the remaining positional
@@ -36,7 +38,8 @@
 /// Draws a complete mind map: measure, tidy layout, then CeTZ drawing.
 ///
 /// - `style`: `"boxed"` (default), `"outline"`, `"technical"`, `"bar"`, `"block"`.
-/// - `palette`: one color per first-level branch, cycled.
+/// - `palette`: one color per first-level branch, cycled. The default is
+///   `default-palette` ("Slate": blue, teal, amber, violet, rose, olive).
 /// - `ink` / `emphasis-colors` / `emphasis-labels`: overridable label colors,
 ///   role colors and role tags; partial dictionaries are merged over the
 ///   defaults.

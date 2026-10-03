@@ -1,11 +1,15 @@
-// `markers: "role"` tags a node's role instead of recoloring it; tag text is overridable.
+// `markers: "role"` tags a node's role instead of recoloring its label.
 #import "@preview/tidymind:0.3.0": mindmap, node
-#set page(width: auto, height: auto, margin: 10pt)
-#let switching = node([Switching techniques],
+#set page(width: auto, height: auto, margin: 12pt)
+#set text(font: "Inter", size: 9pt, fill: rgb("#64748b"))
+#let switching = node([Network switching],
   node([Circuit switching],
-    node([Dedicated channel (`FDM` or `TDM`)]),
-    node([Three phases: setup, transfer, teardown]),
-    node([Idle time wastes fixed bandwidth], emphasis: "warning"),
+    node([Dedicated channel],
+      node([`FDM` splits the frequency band]),
+      node([`TDM` splits time into slots]),
+    ),
+    node([Setup, transfer and teardown]),
+    node([Idle time wastes reserved bandwidth], emphasis: "warning"),
   ),
   node([Message switching],
     node([Whole-message store-and-forward], emphasis: "definition"),
@@ -15,8 +19,13 @@
     node([Statistical multiplexing]),
     node([Modes],
       node([Datagram (connectionless)]),
-      node([Virtual circuit], node([`MPLS`], emphasis: "example")),
+      node([Virtual circuit], node([`MPLS`, Frame Relay], emphasis: "example")),
     ),
   ),
 )
-#mindmap(switching, style: "technical", markers: "role", emphasis-labels: (warning: "watch out"))
+// One map per row, with a short caption under it.
+#let variant(caption, map) = stack(spacing: 6pt, map, { show raw: set text(size: 1.25em); caption })
+#stack(spacing: 22pt,
+  variant[`markers: "none"`: a role recolors the label][#mindmap(switching, style: "technical")],
+  variant[`markers: "role"`: a role puts a tag in front of the label][#mindmap(switching, style: "technical", markers: "role")],
+)

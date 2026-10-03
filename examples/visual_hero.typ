@@ -1,7 +1,8 @@
-// Labels take any Typst content: one emoji per node, plus *strong* and `raw`.
-// The emoji needs a color font in the `font` fallback list.
+// The README hero: the full map in the "technical" style, with role tags and emoji.
+// Each depth starts right after its parent (no `align-levels`), which keeps the
+// map narrow enough to read at README width.
 #import "@preview/tidymind:0.3.0": mindmap, node
-#set page(width: auto, height: auto, margin: 10pt)
+#set page(width: auto, height: auto, margin: 12pt)
 #let switching = node([🌐 Network switching],
   node([📞 Circuit switching],
     node([🎯 Dedicated channel],

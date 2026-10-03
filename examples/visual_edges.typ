@@ -1,4 +1,4 @@
-// The five styles on the same map, each with its usual edge.
+// The three edges on the same map: curved, straight and tapered.
 #import "@preview/tidymind:0.3.0": mindmap, node
 #set page(width: auto, height: auto, margin: 12pt)
 #set text(font: "Inter", size: 9pt, fill: rgb("#64748b"))
@@ -25,10 +25,7 @@
 )
 // One map per row, with a short caption under it.
 #let variant(caption, map) = stack(spacing: 6pt, map, { show raw: set text(size: 1.25em); caption })
-#stack(spacing: 24pt,
-  ..("boxed", "outline", "technical", "bar", "block").map(style => {
-    let edge = if style == "bar" { "tapered" } else { "curved" }
-    variant(raw("style: \"" + style + "\"" + if edge != "curved" { ", edge: \"" + edge + "\"" }),
-      mindmap(switching, style: style, edge: edge, markers: "role"))
-  }),
+#stack(spacing: 22pt,
+  ..("curved", "straight", "tapered").map(edge => variant(raw("edge: \"" + edge + "\""),
+    mindmap(switching, style: "technical", edge: edge, markers: "role"))),
 )
