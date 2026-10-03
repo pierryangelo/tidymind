@@ -47,8 +47,8 @@ needs — at any depth, with no manual offsets.
 filled with its branch color.
 
 `style: "outline"` drops the boxes entirely: the root becomes a heading over a
-baseline rule, each first-level branch a label resting on a rule in its own
-color, and everything deeper is plain text. Hierarchy comes from size, weight
+baseline rule, each first-level branch a label beside a rounded capsule in its
+own color, and everything deeper is plain text. Hierarchy comes from size, weight
 and color instead of from frames — useful when the map sits inside a document
 and boxes would fight with the surrounding text.
 
@@ -212,7 +212,7 @@ document says what a node *means*, and the package resolves the color.
 | `max-depth` | `6` | prune nodes deeper than this | 0.1 |
 | `h-gap` | `40pt` | horizontal gap between levels | 0.1 |
 | `v-gap` | `10pt` | minimum vertical gap between siblings | 0.1 |
-| `ink` | `(strong, soft)` | label colors; partial dictionaries merge over the defaults | 0.2 |
+| `ink` | `(strong, soft, faint)` | label colors (`faint`, for depth 3 and deeper, since 0.3); partial dictionaries merge over the defaults | 0.2 |
 | `emphasis-colors` | 4 roles | `highlight`, `warning`, `definition`, `example` | 0.2 |
 | `edge` | `"curved"` | `"curved"`, `"straight"` or `"tapered"` | 0.3 |
 | `direction` | `"right"` | `"right"`, `"left"` or `"both"` | 0.3 |
@@ -250,8 +250,12 @@ Every file under [`examples/`](examples) compiles on its own. Files named
 through `#assert`, so compiling them **is** the test suite.
 
 ```sh
-sh examples/render.sh    # runs the asserts, then regenerates img/
+FONT_PATH=/path/to/fonts sh examples/render.sh    # runs the asserts, then regenerates img/
 ```
+
+`FONT_PATH` must hold Inter and Noto Color Emoji (DejaVu Sans Mono, the default
+`mono-font`, ships inside Typst), unless they are installed system-wide. A
+missing font makes Typst warn, and any warning fails the run.
 
 | Example | What it covers |
 |---------|----------------|
@@ -281,7 +285,12 @@ sh examples/render.sh    # runs the asserts, then regenerates img/
 longer inherits the document's justification and hyphenation (a label inside a
 justified document stops splitting words), and in `"outline"` the first-level
 rule becomes a rounded capsule and the edges below the first level are drawn
-lighter. A root longer than `node-max-width` now wraps at up to twice that
+lighter. Also in `"outline"`, the root's edges leave from its rule, labels at
+depth 3 and deeper are 92% size in the `faint` ink, edges at depth 2 and deeper
+land on the label's first line, and the branch inset grew to 8pt. A label on
+the left side (`direction: "left"` or `"both"`) is right-aligned, so a wrapped
+label ends where its edge arrives, and a label no longer inherits the
+document's alignment. A root longer than `node-max-width` now wraps at up to twice that
 width (`root-max-width: auto`); pass `root-max-width` equal to `node-max-width`
 (e.g. `6cm`) for the old layout. Nodes now sit exactly at their layout position
 (a sub-point shift) and edges have round caps. `style: "boxed"` otherwise

@@ -6,11 +6,13 @@
 # a version of the output that no longer exists.
 #
 # Usage, from the repository root:
-#   sh examples/render.sh              # render + assert
-#   FONT_PATH=/path/to/fonts sh examples/render.sh
+#   FONT_PATH=/path/to/fonts sh examples/render.sh    # assert + render
 #
-# Inter and Noto Color Emoji are what the examples ask for. Without them Typst
-# falls back to another family and the images stop matching the real output.
+# FONT_PATH is required (unless the fonts are installed system-wide): it must
+# hold Inter and Noto Color Emoji, which the examples ask for. DejaVu Sans Mono,
+# the default mono-font, ships inside Typst. A missing font makes Typst warn,
+# and any warning fails the run (see `clean` below). FONT_PATH defaults to
+# ./fonts, which is not in the repository.
 set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
