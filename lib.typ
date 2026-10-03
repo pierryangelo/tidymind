@@ -32,6 +32,8 @@
 /// - `markers`: `"none"` (a role recolors the label) or `"role"` (a short tag
 ///   from `emphasis-labels` in front of the label, in `mono-font`).
 /// - `root-max-width`: the root's wrap width; `auto` is twice `node-max-width`.
+/// - `edge`: `"curved"` (default), `"straight"` or `"tapered"` (a filled
+///   ribbon that thins from the parent to the child).
 #let mindmap(
   root,
   style: "boxed",
@@ -49,14 +51,16 @@
   markers: "none",
   emphasis-labels: (:),
   mono-font: "DejaVu Sans Mono",
+  edge: "curved",
 ) = context {
   _one-of(style, styles, "style")
   _one-of(surface, ("none", "branches", "all"), "surface")
   _one-of(markers, ("none", "role"), "markers")
+  _one-of(edge, ("curved", "straight", "tapered"), "edge")
   let opts = make-opts(style: style, font: font, text-size: text-size,
     node-max-width: node-max-width, root-max-width: root-max-width, mono-font: mono-font,
     markers: markers, surface: surface, emphasis-labels: emphasis-labels, ink: ink,
-    emphasis-colors: emphasis-colors)
+    emphasis-colors: emphasis-colors, edge: edge)
   let t = prune(normalize(root), max-depth)
   let placed = layout-tree(measure-tree(t, opts), h-gap, v-gap)
   cetz.canvas(length: 1pt, draw-mindmap(placed, palette, opts))
