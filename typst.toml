@@ -1,6 +1,6 @@
 [package]
 name = "tidymind"
-version = "0.2.0"
+version = "0.3.0"
 entrypoint = "lib.typ"
 authors = ["Elitus <https://elitus.com.br>", "Pierry A. Pereira <@pierryangelo>"]
 license = "MIT"

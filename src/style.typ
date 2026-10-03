@@ -110,10 +110,16 @@
   stroke: paint.stroke,
   radius: spec.at("radius", default: 0pt),
   inset: spec.inset,
-  text(
-    font: font,
-    size: text-size * spec.scale,
-    weight: spec.weight,
-    fill: paint.text,
-  )[#content],
+  {
+    // A node label is a label, not a paragraph: the document's justification
+    // and hyphenation must not leak into it.
+    set par(justify: false)
+    set text(hyphenate: false)
+    text(
+      font: font,
+      size: text-size * spec.scale,
+      weight: spec.weight,
+      fill: paint.text,
+    )[#content]
+  },
 )

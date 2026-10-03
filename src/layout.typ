@@ -17,10 +17,13 @@
   style,
   depth,
   emphasized: false,
+  root-max-width: none,
 ) = {
   let spec = node-spec(style, depth, emphasized: emphasized)
   let paint = node-paint(spec, depth, black, _neutral-ink, none, neutral: true)
   let natural = measure(node-body(content, spec, paint, font, text-size))
+  // The root is a heading, not a leaf: it gets its own (wider) cap.
+  let node-max-width = if depth == 0 and root-max-width != none { root-max-width } else { node-max-width }
   if natural.width <= node-max-width {
     return (w: natural.width.pt(), h: natural.height.pt())
   }
@@ -36,7 +39,7 @@
 /// Annotates every node of the tree with `w`/`h` (in points).
 /// MUST be called inside `context`. `depth` picks the measured style, which is
 /// what keeps the measuring and the drawing passes in agreement.
-#let measure-tree(n, node-max-width, font, text-size, style, depth: 0) = {
+#let measure-tree(n, node-max-width, font, text-size, style, depth: 0, root-max-width: none) = {
   let m = measure-node(
     n.content,
     node-max-width,
@@ -45,6 +48,7 @@
     style,
     depth,
     emphasized: n.at("emphasis", default: none) != none,
+    root-max-width: root-max-width,
   )
   (
     ..n,
@@ -55,6 +59,7 @@
       text-size,
       style,
       depth: depth + 1,
+      root-max-width: root-max-width,
     )),
     w: m.w,
     h: m.h,

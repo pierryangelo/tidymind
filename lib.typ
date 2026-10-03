@@ -43,6 +43,7 @@
   font: "Inter",
   text-size: 9pt,
   node-max-width: 6cm,
+  root-max-width: auto,
   max-depth: 6,
   h-gap: 40pt,
   v-gap: 10pt,
@@ -58,7 +59,8 @@
   let emphasis-colors = default-emphasis-colors + emphasis-colors
 
   let t = prune(normalize(root), max-depth)
-  let measured = measure-tree(t, node-max-width, font, text-size, style)
+  let root-max-width = if root-max-width == auto { node-max-width * 2 } else { root-max-width }
+  let measured = measure-tree(t, node-max-width, font, text-size, style, root-max-width: root-max-width)
   let placed = layout-tree(measured, h-gap, v-gap)
   cetz.canvas(
     length: 1pt,
