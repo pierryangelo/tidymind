@@ -1,3 +1,4 @@
+#import "../src/options.typ": make-opts
 #import "../src/tree.typ": normalize
 #import "../src/layout.typ": measure-tree, layout-tree
 #set page(width: auto, height: auto)
@@ -6,7 +7,7 @@
   let t = normalize((content: [Root], children: (
     (content: [Child 1],), (content: [Child 2],), (content: [Child 3],),
   )))
-  let m = measure-tree(t, 6cm, "Inter", 9pt, "boxed")
+  let m = measure-tree(t, make-opts(style: "boxed", node-max-width: 6cm))
   let l = layout-tree(m, 40pt, 10pt)
 
   // the root sits to the left of its children
