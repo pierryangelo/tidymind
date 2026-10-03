@@ -86,11 +86,14 @@
       // Born with the parent's rule thickness (a clean join), thinning to the child's.
       let parent-spec = _spec(n, depth, opts)
       let w1 = if parent-spec.rule != none { parent-spec.rule } else { w2 * 1.4 }
+      // A rule ends in a round cap centered half its thickness inside the
+      // node. The ribbon starts at the parent cap's center, so the cap (drawn
+      // later, with the nodes) covers its flat start: no wedge beside the cap.
+      let a = if parent-spec.rule != none { (a.at(0) - s * w1.pt() / 2, a.at(1)) } else { a }
       line(..ribbon(a, b, w1.pt(), w2.pt()), close: true, fill: col, stroke: none)
       circle(b, radius: w2.pt() / 2, fill: col, stroke: none)
-      // A rule ends in a round cap centered half its thickness inside the
-      // node, so a ribbon that stops at the node's edge leaves a waist there.
-      // Run it on to the cap's center, under the rule (nodes draw later).
+      // At the child, a ribbon that stops at the node's edge leaves a waist
+      // before the cap. Run it on to the cap's center, under the rule.
       if child-spec.rule != none {
         line(b, (b.at(0) + s * w2.pt() / 2, b.at(1)), stroke: (paint: col, thickness: w2, cap: "butt"))
       }
