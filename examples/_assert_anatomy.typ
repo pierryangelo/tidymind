@@ -68,6 +68,15 @@
   assert(node-spec("technical", 1, surfaced: true).frame == "surface")
   assert(node-spec("technical", 1, surfaced: true).rule == none, message: "a surface replaces the rule")
 
+  // A capsule is centered on the node, so the edge lands on its middle even
+  // when the label wraps (a T junction, not a hook on the capsule's tip).
+  let narrow = make-opts(style: "outline", node-max-width: 2cm)
+  let long = [A first-level label that wraps]
+  let cap = measure-node(long, 1, narrow, dressing(normalize((content: long,)), 1, 0, narrow))
+  let one = measure-node([X], 1, narrow, dressing(normalize((content: [X],)), 1, 0, narrow))
+  assert(cap.h > 1.8 * one.h, message: "the capsule test label should wrap")
+  assert(calc.abs(cap.a - cap.h / 2) < 0.001, message: "a capsule node anchors at its middle")
+
   // The measured tree carries the dressing to the drawing pass.
   let t = measure-tree(normalize((content: [R], children: ((content: [A],), (content: [B],)))), opts)
   assert(t.children.at(1).number == "02")

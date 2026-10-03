@@ -35,7 +35,7 @@
   }
   let cap = measure(text(font: opts.font, size: opts.text-size * spec.scale, weight: spec.weight)[X]).height
   let a = if spec.rule != none { h - spec.rule / 2 }
-    else if spec.frame in ("box", "filled", "surface") { h / 2 }
+    else if spec.frame in ("box", "filled", "surface") or spec.capsule { h / 2 }
     else { inset-top(spec.inset) + cap / 2 }
   (w: w.pt(), h: h.pt(), a: a.pt())
 }
