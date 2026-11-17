@@ -3,6 +3,13 @@
   if c == [] or c == "" or c == none { [—] } else { c }
 }
 
+/// Remove leading empty nodes from an array. This is used to clean up the children of a node, which may have been generated with empty content.
+#let _trim_array(arr) = {
+  let trimmed = arr
+  while trimmed.len() > 0 and trimmed.first() in ([ ], parbreak()) { let _ = trimmed.remove(0) }
+  return trimmed
+}
+
 /// Normalizes any input into `(content, children, branch, emphasis)`.
 /// Accepts a dictionary carrying `content` (plus optional attributes), or raw
 /// content, which becomes a leaf.
@@ -19,6 +26,18 @@
       branch: n.at("branch", default: none),
       emphasis: n.at("emphasis", default: none),
     )
+  }
+  let root = if "children" in n.fields() and n.children.filter(c => c not in ([ ], parbreak())).len() == 1 {
+    _trim_array(n.children).first()
+  } else { n }
+  if root.func() == list.item {
+    let (content, children, emphasis) = if "children" in root.body.fields() {
+      let rest = _trim_array(root.body.children.filter(c => c.func() != list.item))
+      if rest.first() == [#"["] {
+        (_trim_array(rest.slice(3)).sum(), root.body.children.filter(c => c.func() == list.item), rest.at(1).text)
+      } else { (rest.sum(), root.body.children.filter(c => c.func() == list.item), none) }
+    } else { (root.body, (), none) }
+    return (content: content, children: children.map(normalize), branch: none, emphasis: emphasis)
   }
   // conteúdo cru → folha
   (content: _nonempty(n), children: (), branch: none, emphasis: none)
